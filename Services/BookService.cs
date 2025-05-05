@@ -1,0 +1,85 @@
+﻿using AutoMapper;
+using LibraryManagement.DTOs;
+using LibraryManagement.Models;
+using LibraryManagement.Repositories;
+
+namespace LibraryManagement.Services
+{
+    public class BookService : IBookService
+    {
+        private readonly IBookRepository _bookRepository;
+        private readonly ICategoryRepository _categoryRepository;
+        private readonly IMapper _mapper;
+
+        public BookService(IBookRepository repository, IMapper mapper, ICategoryRepository categoryRepository)
+        {
+            _bookRepository = repository;
+            _mapper = mapper;
+            _categoryRepository = categoryRepository;
+        }
+
+        public async Task<IEnumerable<BookDetailDto>> GetAllBooksAsync()
+        {
+            var books = await _bookRepository.GetAllBooksAsync();
+            return _mapper.Map<IEnumerable<BookDetailDto>>(books);
+        }
+
+        public async Task<BookDetailDto?> GetBookByIdAsync(int id)
+        {
+            var book = await _bookRepository.GetBookByIdAsync(id);
+            return _mapper.Map<BookDetailDto?>(book);
+        }
+
+        public async Task<BookDetailDto> AddBookAsync(BookDto bookDto)
+        {
+            var book = _mapper.Map<Book>(bookDto);
+
+            // Validate categories exist
+            foreach (var categoryId in bookDto.CategoryIds)
+            {
+                if (!await _categoryRepository.ExistsAsync(categoryId))
+                {
+                    throw new KeyNotFoundException($"Category with ID {categoryId} not found");
+                }
+            }
+
+            var addedBook = await _bookRepository.AddBookAsync(book);
+            return _mapper.Map<BookDetailDto>(addedBook);
+        }
+
+        public async Task UpdateBookAsync(int id, BookDto bookDto)
+        {
+            if (id != bookDto.Id)
+            {
+                throw new ArgumentException("ID mismatch");
+            }
+
+            if (!await _bookRepository.BookExistsAsync(id))
+            {
+                throw new KeyNotFoundException("Book not found");
+            }
+
+            // Validate categories exist
+            foreach (var categoryId in bookDto.CategoryIds)
+            {
+                if (!await _categoryRepository.ExistsAsync(categoryId))
+                {
+                    throw new KeyNotFoundException($"Category with ID {categoryId} not found");
+                }
+            }
+
+            var book = _mapper.Map<Book>(bookDto);
+            await _bookRepository.UpdateBookAsync(book);
+        }
+
+        public async Task DeleteBookAsync(int id)
+        {
+            if (!await _bookRepository.BookExistsAsync(id))
+            {
+                throw new KeyNotFoundException("Book not found");
+            }
+
+            await _bookRepository.DeleteBookAsync(id);
+        }
+    }
+}
