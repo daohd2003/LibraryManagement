@@ -41,6 +41,12 @@ namespace LibraryManagement.Services
                 {
                     throw new KeyNotFoundException($"Category with ID {categoryId} not found");
                 }
+
+                book.BookCategories.Add(new BookCategory
+                {
+                    BookId = book.Id,
+                    CategoryId = categoryId
+                });
             }
 
             var addedBook = await _bookRepository.AddBookAsync(book);

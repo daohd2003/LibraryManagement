@@ -61,7 +61,7 @@ namespace LibraryManagement.Controllers
                 return NotFound();
             }
 
-            return NoContent();
+            return Ok();
         }
 
         [HttpDelete("{id}")]
@@ -70,7 +70,7 @@ namespace LibraryManagement.Controllers
             try
             {
                 await _bookService.DeleteBookAsync(id);
-                return NoContent();
+                return Ok();
             }
             catch (KeyNotFoundException)
             {

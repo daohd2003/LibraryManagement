@@ -18,7 +18,10 @@ namespace LibraryManagement.Repositories
         {
             _libraryDbContext.Books.Add(book);
             await _libraryDbContext.SaveChangesAsync();
-            return book;
+            return await _libraryDbContext.Books
+                   .Include(b => b.BookCategories)
+                       .ThenInclude(bc => bc.Category)
+                   .FirstOrDefaultAsync(b => b.Id == book.Id);
         }
 
         public async Task<bool> BookExistsAsync(int id)

@@ -15,7 +15,7 @@ namespace LibraryManagement.Profiles
             CreateMap<Book, BookDetailDto>()
                 .IncludeBase<Book, BookDto>()
                 .ForMember(dest => dest.Categories,
-                    opt => opt.MapFrom(src => src.BookCategories.Select(bc => bc.Category)));
+                    opt => opt.MapFrom(src => src.BookCategories.Select(bc => bc.Category))).ReverseMap();
 
             CreateMap<Category, CategoryDto>().ReverseMap();
         }
