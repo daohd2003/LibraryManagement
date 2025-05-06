@@ -2,13 +2,8 @@
 
 namespace LibraryManagement.Repositories
 {
-    public interface ICategoryRepository
+    public interface ICategoryRepository : IRepository<Category>
     {
-        Task<Category?> GetByIdAsync(int id);
-        Task<IEnumerable<Category>> GetAllAsync();
-        Task<Category> AddAsync(Category category);
-        Task UpdateAsync(Category category);
-        Task DeleteAsync(int id);
-        Task<bool> ExistsAsync(int id);
+        Task<bool> ExistsByNameAsync(string name);
     }
 }

@@ -1,4 +1,5 @@
-﻿using LibraryManagement.Infrastructure;
+﻿using LibraryManagement.Data;
+using LibraryManagement.Infrastructure;
 using LibraryManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
@@ -18,10 +19,17 @@ namespace LibraryManagement.Repositories
         {
             _libraryDbContext.Books.Add(book);
             await _libraryDbContext.SaveChangesAsync();
-            return await _libraryDbContext.Books
-                   .Include(b => b.BookCategories)
-                       .ThenInclude(bc => bc.Category)
-                   .FirstOrDefaultAsync(b => b.Id == book.Id);
+            var result = await _libraryDbContext.Books
+           .Include(b => b.BookCategories)
+               .ThenInclude(bc => bc.Category)
+           .FirstOrDefaultAsync(b => b.Id == book.Id);
+
+            if (result == null)
+            {
+                throw new InvalidOperationException("Book not found after insert.");
+            }
+
+            return result;
         }
 
         public async Task<bool> BookExistsAsync(int id)

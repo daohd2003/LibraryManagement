@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
-using LibraryManagement.DTOs;
+using LibraryManagement.DTOs.Request;
+using LibraryManagement.DTOs.Response;
 using LibraryManagement.Models;
 
 namespace LibraryManagement.Profiles
@@ -18,6 +19,12 @@ namespace LibraryManagement.Profiles
                     opt => opt.MapFrom(src => src.BookCategories.Select(bc => bc.Category))).ReverseMap();
 
             CreateMap<Category, CategoryDto>().ReverseMap();
+
+            CreateMap<Category, CreateCategoryDto>()
+                .ReverseMap();
+
+            CreateMap<Category, UpdateCategoryDto>()
+                .ReverseMap();
         }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using LibraryManagement.DTOs;
+using LibraryManagement.DTOs.Response;
 using LibraryManagement.Models;
 using LibraryManagement.Repositories;
 

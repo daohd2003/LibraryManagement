@@ -1,5 +1,6 @@
 
-using LibraryManagement.Infrastructure;
+using LibraryManagement.Data;
+using LibraryManagement.Middlewares;
 using LibraryManagement.Profiles;
 using LibraryManagement.Repositories;
 using LibraryManagement.Services;
@@ -24,10 +25,12 @@ namespace LibraryManagement
             builder.Services.AddDbContext<LibraryDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("LibraryManagement")));
 
+            builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IBookRepository, BookRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             builder.Services.AddScoped<IBookService, BookService>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();
 
             // Add AutoMapper
             builder.Services.AddAutoMapper(typeof(LibraryProfile));
@@ -36,6 +39,8 @@ namespace LibraryManagement
             //builder.Services.AddApplicationServices();
 
             var app = builder.Build();
+
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
 
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())

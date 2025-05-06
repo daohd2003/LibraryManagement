@@ -1,4 +1,4 @@
-﻿using LibraryManagement.DTOs;
+﻿using LibraryManagement.DTOs.Response;
 using LibraryManagement.Services;
 using Microsoft.AspNetCore.Mvc;
 

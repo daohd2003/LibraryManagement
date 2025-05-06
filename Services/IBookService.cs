@@ -1,4 +1,4 @@
-﻿using LibraryManagement.DTOs;
+﻿using LibraryManagement.DTOs.Response;
 
 namespace LibraryManagement.Services
 {

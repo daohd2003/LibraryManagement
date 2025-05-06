@@ -1,4 +1,4 @@
-﻿namespace LibraryManagement.DTOs
+﻿namespace LibraryManagement.DTOs.Response
 {
     public class BookDto
     {
