@@ -28,9 +28,13 @@ namespace LibraryManagement
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IBookRepository, BookRepository>();
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<IBorrowedBookRepository, BorrowedBookRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
 
             builder.Services.AddScoped<IBookService, BookService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
+            builder.Services.AddScoped<IBorrowedBookService, BorrowedBookService>();
+            builder.Services.AddScoped<IUserService, UserService>();
 
             // Add AutoMapper
             builder.Services.AddAutoMapper(typeof(LibraryProfile));

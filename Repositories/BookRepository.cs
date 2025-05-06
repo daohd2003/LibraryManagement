@@ -55,6 +55,7 @@ namespace LibraryManagement.Repositories
             return await _context.Books
                 .Include(b => b.BookCategories)
                 .ThenInclude(bc => bc.Category)
+                .Include(b => b.BorrowedBooks)
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 

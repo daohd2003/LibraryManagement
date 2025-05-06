@@ -25,6 +25,14 @@ namespace LibraryManagement.Profiles
 
             CreateMap<Category, UpdateCategoryDto>()
                 .ReverseMap();
+
+            CreateMap<BorrowedBook, BorrowedBookDto>().ReverseMap();
+
+            CreateMap<User, UserDto>().ReverseMap();
+
+            CreateMap<BorrowedBook, BorrowedBookDetailDto>()
+                .ForMember(dest => dest.Book, opt => opt.MapFrom(src => src.Book))
+                .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User));
         }
     }
 }
