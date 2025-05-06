@@ -20,13 +20,13 @@ namespace LibraryManagement.Services
 
         public async Task<IEnumerable<BookDetailDto>> GetAllBooksAsync()
         {
-            var books = await _bookRepository.GetAllBooksAsync();
+            var books = await _bookRepository.GetAllAsync();
             return _mapper.Map<IEnumerable<BookDetailDto>>(books);
         }
 
         public async Task<BookDetailDto?> GetBookByIdAsync(int id)
         {
-            var book = await _bookRepository.GetBookByIdAsync(id);
+            var book = await _bookRepository.GetByIdAsync(id);
             return _mapper.Map<BookDetailDto?>(book);
         }
 
@@ -49,7 +49,7 @@ namespace LibraryManagement.Services
                 });
             }
 
-            var addedBook = await _bookRepository.AddBookAsync(book);
+            var addedBook = await _bookRepository.AddAsync(book);
             return _mapper.Map<BookDetailDto>(addedBook);
         }
 
@@ -60,7 +60,7 @@ namespace LibraryManagement.Services
                 throw new ArgumentException("ID mismatch");
             }
 
-            if (!await _bookRepository.BookExistsAsync(id))
+            if (!await _bookRepository.ExistsAsync(id))
             {
                 throw new KeyNotFoundException("Book not found");
             }
@@ -75,17 +75,17 @@ namespace LibraryManagement.Services
             }
 
             var book = _mapper.Map<Book>(bookDto);
-            await _bookRepository.UpdateBookAsync(book);
+            await _bookRepository.UpdateAsync(book);
         }
 
         public async Task DeleteBookAsync(int id)
         {
-            if (!await _bookRepository.BookExistsAsync(id))
+            if (!await _bookRepository.ExistsAsync(id))
             {
                 throw new KeyNotFoundException("Book not found");
             }
 
-            await _bookRepository.DeleteBookAsync(id);
+            await _bookRepository.DeleteAsync(id);
         }
     }
 }

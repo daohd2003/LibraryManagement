@@ -1,25 +1,19 @@
 ﻿using LibraryManagement.Data;
-using LibraryManagement.Infrastructure;
 using LibraryManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace LibraryManagement.Repositories
 {
-    public class BookRepository : IBookRepository
+    public class BookRepository : Repository<Book>, IBookRepository
     {
-        private readonly LibraryDbContext _libraryDbContext;
+        public BookRepository(LibraryDbContext context) : base(context) { }
 
-        public BookRepository(LibraryDbContext libraryDbContext)
+        public override async Task<Book> AddAsync(Book book)
         {
-            _libraryDbContext = libraryDbContext;
-        }
-
-        public async Task<Book> AddBookAsync(Book book)
-        {
-            _libraryDbContext.Books.Add(book);
-            await _libraryDbContext.SaveChangesAsync();
-            var result = await _libraryDbContext.Books
+            _context.Books.Add(book);
+            await _context.SaveChangesAsync();
+            var result = await _context.Books
            .Include(b => b.BookCategories)
                .ThenInclude(bc => bc.Category)
            .FirstOrDefaultAsync(b => b.Id == book.Id);
@@ -32,33 +26,33 @@ namespace LibraryManagement.Repositories
             return result;
         }
 
-        public async Task<bool> BookExistsAsync(int id)
+/*        public async Task<bool> BookExistsAsync(int id)
         {
-            return await _libraryDbContext.Books.AnyAsync(book => book.Id == id);
-        }
+            return await _context.Books.AnyAsync(book => book.Id == id);
+        }*/
 
-        public async Task DeleteBookAsync(int id)
+        /*public override async Task<bo> DeleteAsync(int id)
         {
             var book = await GetBookByIdAsync(id);
             if (book == null)
                 throw new KeyNotFoundException($"Book with ID {id} not found.");
 
-            _libraryDbContext.Books.Remove(book);
-            await _libraryDbContext.SaveChangesAsync();
-        }
+            _context.Books.Remove(book);
+            await _context.SaveChangesAsync();
+        }*/
 
-        public async Task<IEnumerable<Book>> GetAllBooksAsync()
+        public override async Task<IEnumerable<Book>> GetAllAsync()
         {
-            return await _libraryDbContext.Books
+            return await _context.Books
                 .Include(b => b.BookCategories)
                 .ThenInclude(bc => bc.Category)
                 .AsNoTracking()
                 .ToListAsync();
         }
 
-        public async Task<Book?> GetBookByIdAsync(int id)
+        public override async Task<Book?> GetByIdAsync(int id)
         {
-            return await _libraryDbContext.Books
+            return await _context.Books
                 .Include(b => b.BookCategories)
                 .ThenInclude(bc => bc.Category)
                 .FirstOrDefaultAsync(b => b.Id == id);
@@ -66,22 +60,24 @@ namespace LibraryManagement.Repositories
 
         public async Task<IEnumerable<Book>> GetBooksByCategoryAsync(int categoryId)
         {
-            return await _libraryDbContext.Books
+            return await _context.Books
                 .Include(b => b.BookCategories)
                 .ThenInclude(bc => bc.Category)
                 .Where(b => b.BookCategories.Any(bc => bc.CategoryId.Equals(categoryId)))
                 .ToListAsync();
         }
 
-        public async Task UpdateBookAsync(Book book)
+        public override async Task<bool> UpdateAsync(Book book)
         {
-            var existingBook = await _libraryDbContext.Books.FindAsync(book.Id);
+            var existingBook = await _context.Books.FindAsync(book.Id);
 
             if (existingBook == null)
                 throw new KeyNotFoundException($"Book with ID {book.Id} not found.");
 
-            _libraryDbContext.Entry(existingBook).CurrentValues.SetValues(book);
-            await _libraryDbContext.SaveChangesAsync();
+            _context.Entry(existingBook).CurrentValues.SetValues(book);
+            var affectedRows = await _context.SaveChangesAsync();
+
+            return affectedRows > 0;
         }
     }
 }
