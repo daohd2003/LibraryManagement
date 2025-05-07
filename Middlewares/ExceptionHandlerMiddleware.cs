@@ -1,4 +1,5 @@
-﻿using LibraryManagement.Exceptions;
+﻿using LibraryManagement.DTOs.Response;
+using LibraryManagement.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Net;
@@ -45,11 +46,13 @@ namespace LibraryManagement.Middlewares
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = statusCode;
 
-            return context.Response.WriteAsync(JsonSerializer.Serialize(new
+            var errorDetails = new ErrorDetails
             {
                 StatusCode = statusCode,
                 Message = message
-            }));
+            };
+
+            return context.Response.WriteAsync(errorDetails.ToString());
         }
     }
 }

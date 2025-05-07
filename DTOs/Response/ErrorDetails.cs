@@ -7,6 +7,11 @@ namespace LibraryManagement.DTOs.Response
         public int StatusCode { get; set; }
         public string Message { get; set; } = string.Empty;
 
-        public override string ToString() => JsonSerializer.Serialize(this);
+        public override string ToString() =>
+            JsonSerializer.Serialize(this, new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                WriteIndented = true
+            });
     }
 }
