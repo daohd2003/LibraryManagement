@@ -66,5 +66,15 @@ namespace LibraryManagement.Controllers
 
             return Ok(result.Message);
         }
+
+        [HttpPost("return")]
+        public async Task<ActionResult> ReturnBook(int userId, int bookId)
+        {
+            var result = await _borrowedBookService.ReturnBookAsync(userId, bookId);
+            if (!result.Success)
+                return BadRequest(result.Message);
+
+            return Ok(result.Message);
+        }
     }
 }

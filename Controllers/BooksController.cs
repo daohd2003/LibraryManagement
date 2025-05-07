@@ -1,4 +1,5 @@
 ﻿using LibraryManagement.DTOs.Response;
+using LibraryManagement.Models;
 using LibraryManagement.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -76,6 +77,25 @@ namespace LibraryManagement.Controllers
             {
                 return NotFound();
             }
+        }
+
+        [HttpGet("get-paged-books")]
+        public async Task<ActionResult<IEnumerable<BookDetailDto>>> GetPagedBooks(
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 10)
+        {
+            var books = await _bookService.GetPagedBooksAsync(pageNumber, pageSize);
+            return Ok(books);
+        }
+
+        [HttpGet("search")]
+        public async Task<ActionResult<IEnumerable<BookDetailDto>>> SearchBooks(
+            [FromQuery] string keyword,
+            [FromQuery] int lastId = 0,
+            [FromQuery] int pageSize = 10)
+        {
+            var books = await _bookService.SearchBooksPagedAsync(keyword, lastId, pageSize);
+            return Ok(books);
         }
     }
 }

@@ -12,5 +12,7 @@ namespace LibraryManagement.Repositories
         Task<bool> BookExistsAsync(int id);
         */
         Task<IEnumerable<Book>> GetBooksByCategoryAsync(int categoryId);
+        Task<IEnumerable<Book>> GetPagedBooksAsync(int pageNumber, int pageSize);
+        Task<IEnumerable<Book>> SearchBooksPagedAsync(string keyword, int lastId, int pageSize);
     }
 }

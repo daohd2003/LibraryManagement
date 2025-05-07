@@ -2,6 +2,7 @@
 using LibraryManagement.DTOs.Response;
 using LibraryManagement.Models;
 using LibraryManagement.Repositories;
+using static System.Reflection.Metadata.BlobBuilder;
 
 namespace LibraryManagement.Services
 {
@@ -86,6 +87,19 @@ namespace LibraryManagement.Services
             }
 
             await _bookRepository.DeleteAsync(id);
+        }
+
+        public async Task<IEnumerable<BookDetailDto>> GetPagedBooksAsync(int pageNumber, int pageSize)
+        {
+            var books = await _bookRepository.GetPagedBooksAsync(pageNumber, pageSize);
+
+            return _mapper.Map<IEnumerable<BookDetailDto>>(books);
+        }
+
+        public async Task<IEnumerable<BookDetailDto>> SearchBooksPagedAsync(string keyword, int lastId, int pageSize)
+        {
+            var books = await _bookRepository.SearchBooksPagedAsync(keyword, lastId, pageSize);
+            return _mapper.Map<IEnumerable<BookDetailDto>>(books);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using LibraryManagement.DTOs.Response;
+using LibraryManagement.Enum;
 using LibraryManagement.Models;
 using LibraryManagement.Repositories;
 
@@ -54,7 +55,7 @@ namespace LibraryManagement.Services
 
             // Đếm số sách đang được mượn mà chưa trả
             int currentlyBorrowed = book.BorrowedBooks
-                .Count(bb => bb.Status != "Returned");
+                .Count(bb => bb.Status != BorrowStatus.Returned.ToString());
 
             if (currentlyBorrowed >= book.Quantity)
                 return (false, "No available copies");
@@ -71,11 +72,44 @@ namespace LibraryManagement.Services
                 UserId = userId,
                 BorrowDate = DateTime.Now,
                 DueDate = DateTime.Now.AddDays(14),
-                Status = "Borrowed"
+                Status = BorrowStatus.Borrowed.ToString()
             };
+
+            book.Quantity -= 1;
+            await _bookRepository.UpdateAsync(book);
 
             await _borrowedBookRepository.AddAsync(borrowed);
             return (true, "Book borrowed successfully");
+        }
+
+        public async Task<(bool Success, string Message)> ReturnBookAsync(int userId, int bookId)
+        {
+            // Lấy thông tin mượn sách của người dùng
+            var borrowedBook = await _borrowedBookRepository
+                .GetByUserIdAndBookIdAsync(userId, bookId);
+
+            if (borrowedBook == null)
+                return (false, "You haven't borrowed this book.");
+
+            if (borrowedBook.Status == BorrowStatus.Returned.ToString())
+                return (false, "You have already returned this book.");
+
+            // Cập nhật trạng thái thành "Returned" và lưu ngày trả sách
+            borrowedBook.Status = BorrowStatus.Returned.ToString();
+            borrowedBook.ReturnDate = DateTime.Now;
+
+            await _borrowedBookRepository.UpdateAsync(borrowedBook);
+
+            // Cập nhật số lượng sách có sẵn (nếu cần)
+            var book = await _bookRepository.GetByIdAsync(bookId);
+            if (book != null)
+            {
+                // Tăng số lượng sách có sẵn sau khi người dùng trả lại
+                book.Quantity += 1;
+                await _bookRepository.UpdateAsync(book);
+            }
+
+            return (true, "Book returned successfully.");
         }
     }
 }

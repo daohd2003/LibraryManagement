@@ -39,6 +39,8 @@ namespace LibraryManagement
             // Add AutoMapper
             builder.Services.AddAutoMapper(typeof(LibraryProfile));
 
+            builder.Services.AddHostedService<OverdueCheckerService>();
+
             // Add custom services
             //builder.Services.AddApplicationServices();
 

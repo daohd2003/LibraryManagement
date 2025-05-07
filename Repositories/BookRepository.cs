@@ -2,6 +2,7 @@
 using LibraryManagement.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Dapper;
 
 namespace LibraryManagement.Repositories
 {
@@ -26,10 +27,10 @@ namespace LibraryManagement.Repositories
             return result;
         }
 
-/*        public async Task<bool> BookExistsAsync(int id)
-        {
-            return await _context.Books.AnyAsync(book => book.Id == id);
-        }*/
+        /*        public async Task<bool> BookExistsAsync(int id)
+                {
+                    return await _context.Books.AnyAsync(book => book.Id == id);
+                }*/
 
         /*public override async Task<bo> DeleteAsync(int id)
         {
@@ -79,6 +80,41 @@ namespace LibraryManagement.Repositories
             var affectedRows = await _context.SaveChangesAsync();
 
             return affectedRows > 0;
+        }
+
+        public async Task<IEnumerable<Book>> GetPagedBooksAsync(int pageNumber, int pageSize)
+        {
+            var offset = (pageNumber - 1) * pageSize;
+            /*var sql = @"
+                SELECT b.*, bc.*, c.*
+                FROM Books b
+                LEFT JOIN BookCategories bc ON b.Id = bc.BookId
+                LEFT JOIN Categories c ON bc.CategoryId = c.Id
+                ORDER BY b.Id
+                OFFSET @Offset ROWS
+                FETCH NEXT @PageSize ROWS ONLY;
+            ";
+
+            using var connection = _context.Database.GetDbConnection();
+            return await connection.QueryAsync<Book>(sql, new { Offset = offset, PageSize = pageSize });*/
+
+            return await _context.Books
+                .OrderBy(b => b.Id)
+                .Skip(offset)
+                .Take(pageSize)
+                .Include(b => b.BookCategories)
+                .ThenInclude(bc => bc.Category)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Book>> SearchBooksPagedAsync(string keyword, int lastId, int pageSize)
+        {
+            return await _context.Books
+                .Where(b => b.Id > lastId && b.Title.Contains(keyword))
+                .OrderBy(b => b.Id)
+                .Take(pageSize)
+                .AsNoTracking()
+                .ToListAsync();
         }
     }
 }

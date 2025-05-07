@@ -1,4 +1,5 @@
 ﻿using LibraryManagement.Models;
+using System.Net;
 
 namespace LibraryManagement.Repositories
 {
@@ -7,5 +8,7 @@ namespace LibraryManagement.Repositories
         Task<IEnumerable<BorrowedBook>> GetAllWithDetailsAsync();
         Task<BorrowedBook?> GetByIdWithDetailsAsync(int id);
         Task<bool> IsAlreadyBorrowedAndNotReturned(int userId, int bookId);
+        Task<BorrowedBook?> GetByUserIdAndBookIdAsync(int userId, int bookId);
+        Task<int> UpdateOverdueStatusAsync();
     }
 }
