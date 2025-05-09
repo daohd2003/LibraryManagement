@@ -1,7 +1,9 @@
 ﻿using LibraryManagement.DTOs.Response;
 using LibraryManagement.Models;
 using LibraryManagement.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -34,6 +36,7 @@ namespace LibraryManagement.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<BorrowedBookDto>> Create(BorrowedBook book)
         {
             var created = await _borrowedBookService.AddAsync(book);
@@ -58,8 +61,10 @@ namespace LibraryManagement.Controllers
         }
 
         [HttpPost("borrow")]
-        public async Task<ActionResult> BorrowBook(int userId, int bookId)
+        [Authorize(Roles = "Member")]
+        public async Task<ActionResult> BorrowBook(int bookId)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
             var result = await _borrowedBookService.BorrowBookAsync(userId, bookId);
             if (!result.Success)
                 return BadRequest(result.Message);
@@ -68,8 +73,11 @@ namespace LibraryManagement.Controllers
         }
 
         [HttpPost("return")]
-        public async Task<ActionResult> ReturnBook(int userId, int bookId)
+        [Authorize(Roles = "Member")]
+        public async Task<ActionResult> ReturnBook(int bookId)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+
             var result = await _borrowedBookService.ReturnBookAsync(userId, bookId);
             if (!result.Success)
                 return BadRequest(result.Message);

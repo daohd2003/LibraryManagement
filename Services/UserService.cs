@@ -1,5 +1,8 @@
-﻿using LibraryManagement.Models;
+﻿using Google.Apis.Auth;
+using LibraryManagement.DTOs.Response;
+using LibraryManagement.Models;
 using LibraryManagement.Repositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace LibraryManagement.Services
 {
@@ -22,9 +25,9 @@ namespace LibraryManagement.Services
             return await _userRepository.GetByIdAsync(id);
         }
 
-        public async Task<User?> GetUserWithBorrowedBooksAsync(int id)
+        public async Task<IEnumerable<User>> GetUsersWithBorrowedBooksAsync(int id)
         {
-            return await _userRepository.GetUserWithBorrowedBooksAsync(id);
+            return await _userRepository.GetUsersWithBorrowedBooksAsync(id);
         }
 
         public async Task<User> AddAsync(User user)
@@ -40,6 +43,13 @@ namespace LibraryManagement.Services
         public async Task<bool> DeleteAsync(int id)
         {
             return await _userRepository.DeleteAsync(id);
+        }
+
+        public async Task<User> GetOrCreateUserAsync(GooglePayload payload)
+        {
+            var user = await _userRepository.GetOrCreateUserAsync(payload);
+
+            return user;
         }
     }
 }

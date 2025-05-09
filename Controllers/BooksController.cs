@@ -1,6 +1,7 @@
 ﻿using LibraryManagement.DTOs.Response;
 using LibraryManagement.Models;
 using LibraryManagement.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -33,6 +34,7 @@ namespace LibraryManagement.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<BookDetailDto>> PostBook(BookDto bookDto)
         {
             try
@@ -47,6 +49,7 @@ namespace LibraryManagement.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PutBook(int id, BookDto bookDto)
         {
             try
@@ -66,6 +69,7 @@ namespace LibraryManagement.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteBook(int id)
         {
             try

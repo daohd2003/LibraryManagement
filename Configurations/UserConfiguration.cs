@@ -30,6 +30,11 @@ namespace LibraryManagement.Infrastructure.Data
             builder.HasMany(u => u.BorrowedBooks)
                 .WithOne(bb => bb.User)
                 .HasForeignKey(bb => bb.UserId);
+
+            builder.Property(u => u.RefreshToken)
+            .HasMaxLength(200);
+
+            builder.Property(u => u.RefreshTokenExpiryTime);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using LibraryManagement.Models;
 using LibraryManagement.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -33,9 +34,10 @@ namespace LibraryManagement.Controllers
         }
 
         [HttpGet("{id}/borrowed-books")]
-        public async Task<IActionResult> GetUserWithBorrowedBooks(int id)
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> GetUsersWithBorrowedBooks(int id)
         {
-            var user = await _userService.GetUserWithBorrowedBooksAsync(id);
+            var user = await _userService.GetUsersWithBorrowedBooksAsync(id);
             if (user == null) return NotFound();
             return Ok(user);
         }
@@ -57,6 +59,7 @@ namespace LibraryManagement.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _userService.DeleteAsync(id);

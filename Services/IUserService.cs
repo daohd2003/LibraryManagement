@@ -1,4 +1,5 @@
-﻿using LibraryManagement.Models;
+﻿using LibraryManagement.DTOs.Response;
+using LibraryManagement.Models;
 
 namespace LibraryManagement.Services
 {
@@ -6,9 +7,10 @@ namespace LibraryManagement.Services
     {
         Task<IEnumerable<User>> GetAllAsync();
         Task<User?> GetByIdAsync(int id);
-        Task<User?> GetUserWithBorrowedBooksAsync(int id);
+        Task<IEnumerable<User>> GetUsersWithBorrowedBooksAsync(int id);
         Task<User> AddAsync(User user);
         Task<bool> UpdateAsync(User user);
         Task<bool> DeleteAsync(int id);
+        Task<User> GetOrCreateUserAsync(GooglePayload payload);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using LibraryManagement.DTOs.Request;
 using LibraryManagement.DTOs.Response;
 using LibraryManagement.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Data;
 using System.Net;
@@ -64,6 +65,7 @@ namespace LibraryManagement.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<CategoryDto>> AddCategory(CreateCategoryDto dto)
         {
 
@@ -81,6 +83,7 @@ namespace LibraryManagement.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateCategory(int id, UpdateCategoryDto dto)
         {
             if (!ModelState.IsValid)
@@ -94,6 +97,7 @@ namespace LibraryManagement.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             var result = await _categoryService.DeleteCategoryAsync(id);
