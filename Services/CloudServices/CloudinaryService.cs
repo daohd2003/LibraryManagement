@@ -24,7 +24,7 @@ namespace LibraryManagement.Services.CloudServices
             _userService = userService;
         }
 
-        public async Task<String> UploadImage(IFormFile file, int userId)
+        public async Task<string> UploadImage(IFormFile file, int userId, string projectName, string folderType)
         {
             if (file == null || file.Length == 0)
             {
@@ -51,7 +51,7 @@ namespace LibraryManagement.Services.CloudServices
                 throw new ArgumentException("File size exceeds 5MB");
             }
 
-            var publicId = $"profile_pics/{userId}";
+            var publicId = $"{userId}";
 
             // 1. Kiểm tra và xóa ảnh cũ nếu tồn tại
             try
@@ -75,6 +75,7 @@ namespace LibraryManagement.Services.CloudServices
                 File = new FileDescription(file.FileName, file.OpenReadStream()),
                 PublicId = publicId,
                 Overwrite = true,
+                Folder = $"{projectName}/{folderType}",
                 Transformation = new Transformation()
             .Width(300).Height(300).Crop("fill") // Tự động resize
             };

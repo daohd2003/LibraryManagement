@@ -2,6 +2,6 @@
 {
     public interface ICloudinaryService
     {
-        Task<String> UploadImage(IFormFile file, int userId);
+        Task<string> UploadImage(IFormFile file, int userId, string projectName, string folderType);
     }
 }

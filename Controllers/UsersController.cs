@@ -74,12 +74,12 @@ namespace LibraryManagement.Controllers
 
         [HttpPost("upload-image")]
         [Authorize(Roles = "Member")]
-        public async Task<ActionResult<string>> UploadAvatar(IFormFile file)
+        public async Task<ActionResult<string>> UploadAvatar(IFormFile file, string projectName = "LibraryManagement_Project", string folderType = "profile_pics")
         {
             try
             {
                 var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-                string ImageUrl = await _cloudinaryService.UploadImage(file, userId);
+                string ImageUrl = await _cloudinaryService.UploadImage(file, userId, projectName, folderType);
 
                 return Ok(ImageUrl);
             }
