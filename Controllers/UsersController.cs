@@ -1,7 +1,9 @@
 ﻿using LibraryManagement.Models;
 using LibraryManagement.Services;
+using LibraryManagement.Services.CloudServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,9 +15,12 @@ namespace LibraryManagement.Controllers
     {
         private readonly IUserService _userService;
 
-        public UsersController(IUserService userService)
+        private readonly ICloudinaryService _cloudinaryService;
+
+        public UsersController(IUserService userService, ICloudinaryService cloudinaryService)
         {
             _userService = userService;
+            _cloudinaryService = cloudinaryService;
         }
 
         [HttpGet]
@@ -65,6 +70,23 @@ namespace LibraryManagement.Controllers
             var result = await _userService.DeleteAsync(id);
             if (!result) return NotFound();
             return NoContent();
+        }
+
+        [HttpPost("upload-image")]
+        [Authorize(Roles = "Member")]
+        public async Task<ActionResult<string>> UploadAvatar(IFormFile file)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
+                string ImageUrl = await _cloudinaryService.UploadImage(file, userId);
+
+                return Ok(ImageUrl);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

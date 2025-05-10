@@ -49,7 +49,7 @@ namespace LibraryManagement.Repositories
         public async Task<int> UpdateOverdueStatusAsync()
         {
             var overdueBooks = await _context.BorrowedBooks
-                .Where(bb => bb.Status == BorrowStatus.Borrowed.ToString() && bb.DueDate >= DateTime.Now)
+                .Where(bb => bb.Status == BorrowStatus.Borrowed.ToString() && bb.DueDate < DateTime.Now)
                 .ToListAsync();
 
             foreach (var bb in overdueBooks)

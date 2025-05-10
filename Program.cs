@@ -1,4 +1,5 @@
 ﻿
+using CloudinaryDotNet;
 using LibraryManagement.Data;
 using LibraryManagement.DTOs.Request;
 using LibraryManagement.Middlewares;
@@ -6,8 +7,10 @@ using LibraryManagement.Profiles;
 using LibraryManagement.Repositories;
 using LibraryManagement.Services;
 using LibraryManagement.Services.Authentication;
+using LibraryManagement.Services.CloudServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Security.Claims;
@@ -54,6 +57,23 @@ namespace LibraryManagement
 
             // Bind thông tin từ appsettings.json vào đối tượng JwtSettings
             builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JwtSettings"));
+
+            // Đăng ký JwtService cho IJwtService
+            builder.Services.AddScoped<IJwtService, JwtService>();
+
+            // Bind thông tin từ appsettings.json vào đối tượng CloudSettings
+            builder.Services.Configure<CloudSettings>(builder.Configuration.GetSection("CloudSettings"));
+
+            // Đăng ký Cloudinary như một singleton service
+            builder.Services.AddSingleton(provider =>
+            {
+                var settings = provider.GetRequiredService<IOptions<CloudSettings>>().Value;
+                var account = new Account(settings.CloudName, settings.APIKey, settings.APISecret);
+                return new Cloudinary(account);
+            });
+
+            // Đăng ký CloudinaryService
+            builder.Services.AddScoped<ICloudinaryService, CloudinaryService>();
 
             builder.Services.AddAuthentication(options =>
             {
@@ -107,9 +127,6 @@ namespace LibraryManagement
                     });
             });
 
-            // Đăng ký JwtService cho IJwtService
-            builder.Services.AddScoped<IJwtService, JwtService>();
-
             // Add custom services
             //builder.Services.AddApplicationServices();
 
@@ -125,7 +142,7 @@ namespace LibraryManagement
             }
 
             app.UseHttpsRedirection();
-
+            app.UseRouting();
             app.UseAuthentication();
             app.UseAuthorization();
 
