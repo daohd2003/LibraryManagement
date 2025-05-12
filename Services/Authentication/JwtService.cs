@@ -15,13 +15,15 @@ namespace LibraryManagement.Services.Authentication
     {
         private readonly JwtSettings _jwtSettings;
         private readonly IUserRepository _userRepository;
+        private readonly ILoggedOutTokenRepository _loggedOutTokenRepository;
         private readonly ILogger<JwtService> _logger;
 
-        public JwtService(IOptions<JwtSettings> jwtSettings, IUserRepository userRepository, ILogger<JwtService> logger)
+        public JwtService(IOptions<JwtSettings> jwtSettings, IUserRepository userRepository, ILogger<JwtService> logger, ILoggedOutTokenRepository loggedOutTokenRepository)
         {
             _jwtSettings = jwtSettings.Value;
             _userRepository = userRepository;
             _logger = logger;
+            _loggedOutTokenRepository = loggedOutTokenRepository;
         }
 
         public string GenerateRefreshToken()
@@ -177,6 +179,53 @@ namespace LibraryManagement.Services.Authentication
             {
                 throw new UnauthorizedAccessException("Invalid email or password");
             }
+        }
+
+        public async Task LogoutAsync(string token)
+        {
+            var tokenHander = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHander.ReadJwtToken(token);
+            var expDate = jwtToken.ValidTo;
+
+            await _loggedOutTokenRepository.AddAsync(token, expDate);
+        }
+
+        public async Task<bool> IsTokenValidAsync(string token)
+        {
+            return !await _loggedOutTokenRepository.IsTokenLoggedOutAsync(token);
+        }
+
+        public async Task<TokenResponseDto?> RegisterAsync(RegisterRequest request)
+        {
+            var existingUser = await _userRepository.GetUserByEmailAsync(request.Email);
+
+            if (existingUser != null)
+            {
+                return null;
+            }
+
+            var newUser = new User
+            {
+                Username = request.FullName,
+                Email = request.Email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password)
+            };
+
+            var accessToken = GenerateToken(newUser);
+            var refreshToken = GenerateRefreshToken();
+            var refreshExpiry = GetRefreshTokenExpiryTime();
+
+            newUser.RefreshToken = refreshToken;
+            newUser.RefreshTokenExpiryTime = refreshExpiry;
+
+            await _userRepository.AddAsync(newUser);
+
+            return new TokenResponseDto
+            {
+                Token = accessToken,
+                RefreshToken = refreshToken,
+                RefreshTokenExpiryTime = refreshExpiry
+            };
         }
     }
 }

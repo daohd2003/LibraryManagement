@@ -1,4 +1,5 @@
-﻿using LibraryManagement.DTOs.Response;
+﻿using LibraryManagement.DTOs.Request;
+using LibraryManagement.DTOs.Response;
 using LibraryManagement.Models;
 using System.Security.Claims;
 
@@ -12,5 +13,8 @@ namespace LibraryManagement.Services.Authentication
         DateTime GetRefreshTokenExpiryTime();
         Task<TokenResponseDto> Authenticate(string email, string password);
         Task<TokenResponseDto?> RefreshTokenAsync(string accessToken, string refreshToken);
+        Task LogoutAsync(string token);
+        Task<bool> IsTokenValidAsync(string token);
+        Task<TokenResponseDto?> RegisterAsync(RegisterRequest request);
     }
 }

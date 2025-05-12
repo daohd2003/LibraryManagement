@@ -12,6 +12,7 @@ namespace LibraryManagement.Data
         public DbSet<User> Users { get; set; }
         public DbSet<BookCategory> BookCategories { get; set; }
         public DbSet<BorrowedBook> BorrowedBooks { get; set; }
+        public DbSet<BlacklistedToken> BlacklistedTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

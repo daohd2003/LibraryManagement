@@ -4,6 +4,7 @@ using LibraryManagement.Repositories;
 using LibraryManagement.Services;
 using LibraryManagement.Services.Authentication;
 using LibraryManagement.Utilities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -96,6 +97,32 @@ namespace LibraryManagement.Controllers
                 return Unauthorized(new { message = "Invalid or expired refresh token" });
 
             return Ok(result);
+        }
+
+        [HttpPost("log-out")]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return BadRequest("No token found");
+            }
+
+            await _jwtService.LogoutAsync(token);
+
+            return Ok(new { message = "Logout successful" });
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
+        {
+            var tokenResponse = await _jwtService.RegisterAsync(request);
+            if (tokenResponse == null)
+                return BadRequest("Email is already registered.");
+
+            return Ok(tokenResponse);
         }
     }
 }

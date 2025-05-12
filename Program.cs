@@ -40,6 +40,7 @@ namespace LibraryManagement
             builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
             builder.Services.AddScoped<IBorrowedBookRepository, BorrowedBookRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<ILoggedOutTokenRepository, LoggedOutTokenRepository>();
 
             builder.Services.AddScoped<IBookService, BookService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -132,6 +133,7 @@ namespace LibraryManagement
 
             var app = builder.Build();
 
+            app.UseMiddleware<TokenValidationMiddleware>();
             app.UseMiddleware<ExceptionHandlerMiddleware>();
 
             // Configure the HTTP request pipeline.
