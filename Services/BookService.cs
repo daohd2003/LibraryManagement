@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using LibraryManagement.DTOs.Response;
+using LibraryManagement.Hubs;
 using LibraryManagement.Models;
 using LibraryManagement.Repositories;
+using Microsoft.AspNetCore.SignalR;
 using static System.Reflection.Metadata.BlobBuilder;
 
 namespace LibraryManagement.Services
@@ -11,12 +13,14 @@ namespace LibraryManagement.Services
         private readonly IBookRepository _bookRepository;
         private readonly ICategoryRepository _categoryRepository;
         private readonly IMapper _mapper;
+        private readonly IHubContext<LibraryHub> _hubContext;
 
-        public BookService(IBookRepository repository, IMapper mapper, ICategoryRepository categoryRepository)
+        public BookService(IBookRepository repository, IMapper mapper, ICategoryRepository categoryRepository, IHubContext<LibraryHub> hubContext)
         {
             _bookRepository = repository;
             _mapper = mapper;
             _categoryRepository = categoryRepository;
+            _hubContext = hubContext;
         }
 
         public async Task<IEnumerable<BookDetailDto>> GetAllBooksAsync()
@@ -51,6 +55,7 @@ namespace LibraryManagement.Services
             }
 
             var addedBook = await _bookRepository.AddAsync(book);
+            await _hubContext.Clients.All.SendAsync("BookAdded", book);
             return _mapper.Map<BookDetailDto>(addedBook);
         }
 

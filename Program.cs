@@ -2,6 +2,7 @@
 using CloudinaryDotNet;
 using LibraryManagement.Data;
 using LibraryManagement.DTOs.Request;
+using LibraryManagement.Hubs;
 using LibraryManagement.Middlewares;
 using LibraryManagement.Profiles;
 using LibraryManagement.Repositories;
@@ -46,12 +47,14 @@ namespace LibraryManagement
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IBorrowedBookService, BorrowedBookService>();
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<NotificationService>();
             builder.Services.AddHttpClient<GoogleAuthService>();
 
             // Add AutoMapper
             builder.Services.AddAutoMapper(typeof(LibraryProfile));
 
             builder.Services.AddHostedService<OverdueCheckerService>();
+            builder.Services.AddHostedService<ScheduledNotificationBackgroundService>();
 
             // Thêm cấu hình từ appsettings.json (có thể bỏ qua AddJsonFile, vì mặc định ASP.NET Core đã tự động làm điều này)
             builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
@@ -128,6 +131,8 @@ namespace LibraryManagement
                     });
             });
 
+            builder.Services.AddSignalR();
+
             // Add custom services
             //builder.Services.AddApplicationServices();
 
@@ -150,6 +155,8 @@ namespace LibraryManagement
 
 
             app.MapControllers();
+            app.MapHub<LibraryHub>("/libraryHub");
+            app.MapHub<NotificationHub>("/notificationHub");
 
             app.Run();
         }

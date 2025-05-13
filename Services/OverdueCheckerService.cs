@@ -1,4 +1,6 @@
-﻿using LibraryManagement.Repositories;
+﻿using LibraryManagement.Hubs;
+using LibraryManagement.Repositories;
+using Microsoft.AspNetCore.SignalR;
 
 namespace LibraryManagement.Services
 {
@@ -22,6 +24,9 @@ namespace LibraryManagement.Services
                     var borrowedBookRepository = scope.ServiceProvider.GetRequiredService<IBorrowedBookRepository>();
                     int updated = await borrowedBookRepository.UpdateOverdueStatusAsync();
                     _logger.LogInformation($"[OverdueChecker] {updated} records updated to 'Overdue' status.");
+
+                    var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<LibraryHub>>();
+                    await hubContext.Clients.All.SendAsync("BookOverdue", $"{updated} sách đã bị quá hạn.");
                 }
 
                 await Task.Delay(TimeSpan.FromHours(1), stoppingToken); // kiểm tra mỗi giờ

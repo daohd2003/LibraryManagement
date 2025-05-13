@@ -1,8 +1,10 @@
-﻿using LibraryManagement.Models;
+﻿using LibraryManagement.Hubs;
+using LibraryManagement.Models;
 using LibraryManagement.Services;
 using LibraryManagement.Services.CloudServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -87,6 +89,21 @@ namespace LibraryManagement.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
+        }
+
+        [HttpPost("test-noti/{userId}")]
+        public async Task<IActionResult> TestSendNotification(string userId, [FromServices] IHubContext<NotificationHub> hubContext)
+        {
+            var noti = new Notification
+            {
+                Title = "Test",
+                Message = "This is a test notification",
+                SentAt = DateTime.Now,
+                UserId = int.Parse(userId)
+            };
+
+            await hubContext.Clients.Group(userId).SendAsync("ReceiveNotification", noti);
+            return Ok("Sent");
         }
     }
 }
