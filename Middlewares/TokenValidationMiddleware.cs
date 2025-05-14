@@ -20,7 +20,7 @@ namespace LibraryManagement.Middlewares
 
             try
             {
-                if (context.Request.Path.StartsWithSegments("/api/auth/login") ||
+                if (context.Request.Path.StartsWithSegments("/api/v1/auth/login") ||
                 context.Request.Path.StartsWithSegments("/swagger"))
                 {
                     await _next(context);
