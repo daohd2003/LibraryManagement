@@ -27,7 +27,7 @@ namespace LibraryManagement.Services
                 // Thực thi công việc
                 using (var scope = _serviceProvider.CreateScope())
                 {
-                    var service = scope.ServiceProvider.GetRequiredService<NotificationService>();
+                    var service = scope.ServiceProvider.GetRequiredService<INotificationService>();
                     await service.SendDueBookNotificationsAsync();
                 }
 

@@ -47,7 +47,8 @@ namespace LibraryManagement
             builder.Services.AddScoped<ICategoryService, CategoryService>();
             builder.Services.AddScoped<IBorrowedBookService, BorrowedBookService>();
             builder.Services.AddScoped<IUserService, UserService>();
-            builder.Services.AddScoped<NotificationService>();
+            builder.Services.AddScoped<INotificationService, NotificationService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddHttpClient<GoogleAuthService>();
 
             // Add AutoMapper

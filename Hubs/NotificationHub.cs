@@ -33,7 +33,7 @@ namespace LibraryManagement.Hubs
             _logger.LogInformation($"Sending notification to user {userId}: {notification.Title}");
 
             // Gửi thông báo đến user cụ thể
-            await Clients.User(userId).SendAsync("ReceiveNotification", notification);
+            await Clients.Group(userId).SendAsync("ReceiveNotification", notification);
         }
     }
 }
