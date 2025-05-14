@@ -15,7 +15,7 @@ namespace LibraryManagement.Services
             while (!stoppingToken.IsCancellationRequested)
             {
                 var now = DateTime.Now;
-                var scheduledTime = DateTime.Today.AddHours(19).AddMinutes(17);
+                var scheduledTime = DateTime.Today.AddHours(8);
                 if (now > scheduledTime)
                     scheduledTime = scheduledTime.AddDays(1);
 
