@@ -12,5 +12,7 @@
 
         public virtual Book Book { get; set; } = null!;
         public virtual User User { get; set; } = null!;
+
+        public ICollection<Penalty> Penalties { get; set; } = new List<Penalty>();
     }
 }

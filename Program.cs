@@ -9,6 +9,7 @@ using LibraryManagement.Repositories;
 using LibraryManagement.Services;
 using LibraryManagement.Services.Authentication;
 using LibraryManagement.Services.CloudServices;
+using LibraryManagement.Services.PenaltyCalculators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -42,6 +43,7 @@ namespace LibraryManagement
             builder.Services.AddScoped<IBorrowedBookRepository, BorrowedBookRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<ILoggedOutTokenRepository, LoggedOutTokenRepository>();
+            builder.Services.AddScoped<IPenaltyRepository, PenaltyRepository>();
 
             builder.Services.AddScoped<IBookService, BookService>();
             builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -50,6 +52,8 @@ namespace LibraryManagement
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddHttpClient<GoogleAuthService>();
+            builder.Services.AddScoped<IPenaltyService, PenaltyService>();
+            builder.Services.AddSingleton<IPenaltyCalculatorFactory, PenaltyCalculatorFactory>();
 
             // Add AutoMapper
             builder.Services.AddAutoMapper(typeof(LibraryProfile));

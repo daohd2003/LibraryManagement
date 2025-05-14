@@ -24,6 +24,10 @@ namespace LibraryManagement.Infrastructure.Data
                 .IsRequired()
                 .HasMaxLength(20);
 
+            builder.Property(b => b.Price)
+                .IsRequired()
+                .HasColumnType("decimal(18,2)");
+
             builder.Property(b => b.PublicationYear)
                 .IsRequired();
 
