@@ -25,6 +25,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.9.0" />
+    <PackageReference Include="QuestPDF" Version="2025.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.1" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.9.0" />
   </ItemGroup>
@@ -32,6 +33,8 @@
   <ItemGroup>
     <Folder Include="Extensions\" />
     <Folder Include="Filters\" />
+    <Folder Include="wwwroot\receipts\borrow\" />
+    <Folder Include="wwwroot\receipts\return\" />
   </ItemGroup>
 
 </Project>
