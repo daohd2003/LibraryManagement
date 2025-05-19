@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LibraryManagement.Migrations
 {
     [DbContext(typeof(LibraryDbContext))]
-    [Migration("20250518082111_AddTransactionTable")]
-    partial class AddTransactionTable
+    [Migration("20250519123227_LibraryTransactions")]
+    partial class LibraryTransactions
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -265,7 +265,7 @@ namespace LibraryManagement.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Transactions", (string)null);
+                    b.ToTable("LibraryTransactions", (string)null);
                 });
 
             modelBuilder.Entity("LibraryManagement.Models.User", b =>

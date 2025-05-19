@@ -11,6 +11,7 @@ using LibraryManagement.Services.Authentication;
 using LibraryManagement.Services.CloudServices;
 using LibraryManagement.Services.Documents;
 using LibraryManagement.Services.Payments.QRCodeServices;
+using LibraryManagement.Services.Payments.Transactions;
 using LibraryManagement.Services.Payments.VNPay;
 using LibraryManagement.Services.PenaltyCalculators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -59,6 +60,7 @@ namespace LibraryManagement
             builder.Services.AddScoped<ReceiptService>();
             builder.Services.AddSingleton<IVnpay, Vnpay>();
             builder.Services.AddScoped<QRCodeService>();
+            builder.Services.AddScoped<ITransactionService, TransactionService>();
             builder.Services.AddSingleton<IPenaltyCalculatorFactory, PenaltyCalculatorFactory>();
 
             // Add AutoMapper
@@ -146,6 +148,15 @@ namespace LibraryManagement
 
             // Add license setting
             QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
+            // Kiểm tra cấu hình BackgroundServiceExceptionBehavior
+            builder.Host.ConfigureServices(services =>
+            {
+                services.Configure<HostOptions>(options =>
+                {
+                    options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+                });
+            });
 
             // Add custom services
             //builder.Services.AddApplicationServices();

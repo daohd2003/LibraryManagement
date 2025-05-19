@@ -8,7 +8,7 @@ namespace LibraryManagement.Configurations
     {
         public void Configure(EntityTypeBuilder<Transaction> builder)
         {
-            builder.ToTable("Transactions");
+            builder.ToTable("LibraryTransactions");
 
             builder.HasKey(t => t.Id);
 

@@ -65,7 +65,7 @@ namespace LibraryManagement.Services.Payments.VNPay
             //Sửa lại mỗi lần chạy ngrok
             /*helper.AddRequestData("vnp_IpAddr", request.IpAddress);*/
             /*helper.AddRequestData("vnp_IpAddr", "https://localhost:7021/api/payment/Vnpay/IpnAction");*/
-            helper.AddRequestData("vnp_IpAddr", "https://70d8-2402-800-6236-51d7-c591-f0d3-9f52-6d86.ngrok-free.app/api/payment/Vnpay/IpnAction");
+            helper.AddRequestData("vnp_IpAddr", "https://42eb-118-69-12-201.ngrok-free.app/api/payment/Vnpay/IpnAction");
             helper.AddRequestData("vnp_Locale", EnumHelper.GetDescription(request.Language));
             helper.AddRequestData("vnp_BankCode", request.BankCode == Enums.VNPay.BankCode.ANY ? string.Empty : request.BankCode.ToString());
             helper.AddRequestData("vnp_OrderInfo", request.Description.Trim());
@@ -73,7 +73,7 @@ namespace LibraryManagement.Services.Payments.VNPay
             //Sửa lại mỗi lần chạy ngrok
             /*helper.AddRequestData("vnp_ReturnUrl", _callbackUrl);*/
             /*helper.AddRequestData("vnp_ReturnUrl", "https://localhost:7021/api/payment/Vnpay/Callback");*/
-            helper.AddRequestData("vnp_ReturnUrl", "https://70d8-2402-800-6236-51d7-c591-f0d3-9f52-6d86.ngrok-free.app/api/payment/Vnpay/Callback");
+            helper.AddRequestData("vnp_ReturnUrl", "https://42eb-118-69-12-201.ngrok-free.app/api/payment/Vnpay/Callback");
             helper.AddRequestData("vnp_TxnRef", request.PaymentId.ToString());
 
             return helper.GetPaymentUrl(_baseUrl, _hashSecret);
@@ -100,6 +100,13 @@ namespace LibraryManagement.Services.Payments.VNPay
             var vnp_TransactionStatus = responseData.GetValueOrDefault("vnp_TransactionStatus");
             var vnp_TxnRef = responseData.GetValueOrDefault("vnp_TxnRef");
             var vnp_SecureHash = responseData.GetValueOrDefault("vnp_SecureHash");
+
+            var vnp_AmountStr = responseData.GetValueOrDefault("vnp_Amount");
+            decimal amount = 0;
+            if (!string.IsNullOrEmpty(vnp_AmountStr) && long.TryParse(vnp_AmountStr, out long rawAmount))
+            {
+                amount = rawAmount / 100m; // VNPay nhân 100 lần số tiền thật
+            }
 
             if (string.IsNullOrEmpty(vnp_BankCode)
                 || string.IsNullOrEmpty(vnp_OrderInfo)
@@ -129,6 +136,7 @@ namespace LibraryManagement.Services.Payments.VNPay
                 PaymentId = long.Parse(vnp_TxnRef),
                 VnpayTransactionId = long.Parse(vnp_TransactionNo),
                 IsSuccess = transactionStatusCode == TransactionStatusCode.Code_00 && responseCode == ResponseCode.Code_00 && helper.IsSignatureCorrect(vnp_SecureHash, _hashSecret),
+                Amount = amount,
                 Description = vnp_OrderInfo,
                 PaymentMethod = string.IsNullOrEmpty(vnp_CardType)
                     ? "Không xác định"

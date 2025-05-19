@@ -6,13 +6,13 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace LibraryManagement.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTransactionTable : Migration
+    public partial class LibraryTransactions : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Transactions",
+                name: "LibraryTransactions",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -26,9 +26,9 @@ namespace LibraryManagement.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Transactions", x => x.Id);
+                    table.PrimaryKey("PK_LibraryTransactions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Transactions_Users_UserId",
+                        name: "FK_LibraryTransactions_Users_UserId",
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id",
@@ -36,8 +36,8 @@ namespace LibraryManagement.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Transactions_UserId",
-                table: "Transactions",
+                name: "IX_LibraryTransactions_UserId",
+                table: "LibraryTransactions",
                 column: "UserId");
         }
 
@@ -45,7 +45,7 @@ namespace LibraryManagement.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Transactions");
+                name: "LibraryTransactions");
         }
     }
 }

@@ -1,13 +1,17 @@
 ﻿using LibraryManagement.Data;
 using LibraryManagement.DTOs.Request;
 using LibraryManagement.Enums.VNPay;
+using LibraryManagement.Models;
 using LibraryManagement.Models.VNPay;
 using LibraryManagement.Services.Payments.QRCodeServices;
+using LibraryManagement.Services.Payments.Transactions;
 using LibraryManagement.Services.Payments.VNPay;
 using LibraryManagement.Utilities.VNPAY;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 
 namespace LibraryManagement.Controllers
@@ -19,14 +23,16 @@ namespace LibraryManagement.Controllers
         private readonly IVnpay _vnpay;
         private readonly IConfiguration _configuration;
         private readonly ILogger<VNPayController> _logger;
+        private readonly ITransactionService _transactionService;
 
-        public VNPayController(IVnpay vnpay, IConfiguration configuration, ILogger<VNPayController> logger)
+        public VNPayController(IVnpay vnpay, IConfiguration configuration, ILogger<VNPayController> logger, ITransactionService transactionService)
         {
             _vnpay = vnpay;
             _configuration = configuration;
 
             _vnpay.Initialize(_configuration["Vnpay:TmnCode"], _configuration["Vnpay:HashSecret"], _configuration["Vnpay:BaseUrl"], _configuration["Vnpay:CallbackUrl"]);
             _logger = logger;
+            _transactionService = transactionService;
         }
 
         /// <summary>
@@ -36,8 +42,10 @@ namespace LibraryManagement.Controllers
         /// <param name="description">Mô tả giao dịch</param>
         /// <returns></returns>
         [HttpGet("CreatePaymentUrl")]
+        [Authorize(Roles = "Member")]
         public ActionResult<string> CreatePaymentUrl(double money, string description)
         {
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
             try
             {
                 var ipAddress = NetworkHelper.GetIpAddress(HttpContext); // Lấy địa chỉ IP của thiết bị thực hiện giao dịch
@@ -46,7 +54,7 @@ namespace LibraryManagement.Controllers
                 {
                     PaymentId = DateTime.Now.Ticks,
                     Money = money,
-                    Description = description,
+                    Description = $"UID:{userId}-{description}",
                     IpAddress = ipAddress,
                     BankCode = BankCode.ANY, // Tùy chọn. Mặc định là tất cả phương thức giao dịch
                     CreatedDate = DateTime.Now, // Tùy chọn. Mặc định là thời điểm hiện tại
@@ -70,7 +78,7 @@ namespace LibraryManagement.Controllers
         /// <returns></returns>
         [HttpGet("IpnAction")]
         [HttpPost("IpnAction")]
-        public IActionResult IpnAction()
+        public async Task<IActionResult> IpnAction()
         {
             _logger.LogInformation("IpnAction endpoint was called at {Time}", DateTime.Now);
 
@@ -82,7 +90,22 @@ namespace LibraryManagement.Controllers
                     if (paymentResult.IsSuccess)
                     {
                         _logger.LogInformation("Payment success for PaymentId: {PaymentId}", paymentResult.PaymentId);
+
                         // Thực hiện hành động nếu thanh toán thành công tại đây. Ví dụ: Cập nhật trạng thái đơn hàng trong cơ sở dữ liệu.
+                        var transaction = new Transaction
+                        {
+                            UserId = GetUIDUtils.ExtractUserId(paymentResult.Description),
+                            Amount = paymentResult.Amount,
+                            PaymentMethod = paymentResult.PaymentMethod,
+                            Status = paymentResult.IsSuccess ? "Success" : "Failed",
+                            TransactionCode = paymentResult.VnpayTransactionId.ToString(),
+                            CreatedAt = paymentResult.Timestamp
+                        };
+
+                        var transactionJson = System.Text.Json.JsonSerializer.Serialize(transaction);
+                        _logger.LogInformation("Transaction to save: {Transaction}", transactionJson);
+                        await _transactionService.SaveTransactionAsync(transaction);
+
                         return Ok();
                     }
                     _logger.LogWarning("Payment failed for PaymentId: {PaymentId}", paymentResult.PaymentId);

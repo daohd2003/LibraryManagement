@@ -19,17 +19,31 @@ namespace LibraryManagement.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                using (var scope = _serviceProvider.CreateScope())
+                try
                 {
-                    var borrowedBookRepository = scope.ServiceProvider.GetRequiredService<IBorrowedBookRepository>();
-                    int updated = await borrowedBookRepository.UpdateOverdueStatusAsync();
-                    _logger.LogInformation($"[OverdueChecker] {updated} records updated to 'Overdue' status.");
+                    using (var scope = _serviceProvider.CreateScope())
+                    {
+                        var borrowedBookRepository = scope.ServiceProvider.GetRequiredService<IBorrowedBookRepository>();
+                        int updated = await borrowedBookRepository.UpdateOverdueStatusAsync();
+                        _logger.LogInformation($"[OverdueChecker] {updated} records updated to 'Overdue' status.");
 
-                    var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<LibraryHub>>();
-                    await hubContext.Clients.All.SendAsync("BookOverdue", $"{updated} sách đã bị quá hạn.");
+                        var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<LibraryHub>>();
+                        await hubContext.Clients.All.SendAsync("BookOverdue", $"{updated} sách đã bị quá hạn.");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "[OverdueChecker] Error occurred while checking overdue books.");
                 }
 
-                await Task.Delay(TimeSpan.FromHours(1), stoppingToken); // kiểm tra mỗi giờ
+                try
+                {
+                    await Task.Delay(TimeSpan.FromHours(1), stoppingToken);
+                }
+                catch (TaskCanceledException)
+                {
+                    // Service is stopping
+                }
             }
         }
     }

@@ -262,7 +262,7 @@ namespace LibraryManagement.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Transactions", (string)null);
+                    b.ToTable("LibraryTransactions", (string)null);
                 });
 
             modelBuilder.Entity("LibraryManagement.Models.User", b =>

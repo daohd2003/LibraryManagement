@@ -16,6 +16,8 @@
         /// </summary>
         public bool IsSuccess { get; set; }
 
+        public decimal Amount { get; set; }
+
         /// <summary>
         /// Thông tin mô tả nội dung thanh toán, viết bằng tiếng Việt không dấu.
         /// </summary>
