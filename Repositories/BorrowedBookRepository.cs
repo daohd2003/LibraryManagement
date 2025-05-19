@@ -1,5 +1,5 @@
 ﻿using LibraryManagement.Data;
-using LibraryManagement.Enum;
+using LibraryManagement.Enums;
 using LibraryManagement.Models;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using LibraryManagement.DTOs.Response;
-using LibraryManagement.Enum;
+using LibraryManagement.Enums;
 using LibraryManagement.Models;
 using LibraryManagement.Repositories;
 

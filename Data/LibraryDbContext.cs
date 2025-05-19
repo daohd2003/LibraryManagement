@@ -15,6 +15,7 @@ namespace LibraryManagement.Data
         public DbSet<BlacklistedToken> BlacklistedTokens { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Penalty> Penalties { get; set; }
+        public DbSet<Transaction> Transactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

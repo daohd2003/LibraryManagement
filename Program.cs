@@ -10,6 +10,8 @@ using LibraryManagement.Services;
 using LibraryManagement.Services.Authentication;
 using LibraryManagement.Services.CloudServices;
 using LibraryManagement.Services.Documents;
+using LibraryManagement.Services.Payments.QRCodeServices;
+using LibraryManagement.Services.Payments.VNPay;
 using LibraryManagement.Services.PenaltyCalculators;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -55,6 +57,8 @@ namespace LibraryManagement
             builder.Services.AddHttpClient<GoogleAuthService>();
             builder.Services.AddScoped<IPenaltyService, PenaltyService>();
             builder.Services.AddScoped<ReceiptService>();
+            builder.Services.AddSingleton<IVnpay, Vnpay>();
+            builder.Services.AddScoped<QRCodeService>();
             builder.Services.AddSingleton<IPenaltyCalculatorFactory, PenaltyCalculatorFactory>();
 
             // Add AutoMapper

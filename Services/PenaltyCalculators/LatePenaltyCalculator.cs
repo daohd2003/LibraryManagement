@@ -1,4 +1,4 @@
-﻿using LibraryManagement.Enum;
+﻿using LibraryManagement.Enums;
 using LibraryManagement.Models;
 
 namespace LibraryManagement.Services.PenaltyCalculators
