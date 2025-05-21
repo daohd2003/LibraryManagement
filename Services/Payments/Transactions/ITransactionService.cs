@@ -1,4 +1,5 @@
-﻿using LibraryManagement.Models;
+﻿using LibraryManagement.DTOs.Request;
+using LibraryManagement.Models;
 
 namespace LibraryManagement.Services.Payments.Transactions
 {
@@ -6,5 +7,6 @@ namespace LibraryManagement.Services.Payments.Transactions
     {
         Task<Transaction> SaveTransactionAsync(Transaction transaction);
         Task<IEnumerable<Transaction>> GetUserTransactionsAsync(int userId);
+        Task<bool> ProcessSepayWebhookAsync(SepayWebhookRequest request);
     }
 }

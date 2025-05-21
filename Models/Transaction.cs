@@ -6,7 +6,7 @@
         public int UserId { get; set; }
         public decimal Amount { get; set; }
         public string PaymentMethod { get; set; }
-        public string Status { get; set; }
+        public string Status { get; set; } = "PENDING"; // PENDING/PAID/EXPIRED
         public string TransactionCode { get; set; }
         public DateTime CreatedAt { get; set; }
 

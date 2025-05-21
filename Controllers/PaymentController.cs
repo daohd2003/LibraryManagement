@@ -97,7 +97,7 @@ namespace LibraryManagement.Controllers
                             UserId = GetUIDUtils.ExtractUserId(paymentResult.Description),
                             Amount = paymentResult.Amount,
                             PaymentMethod = paymentResult.PaymentMethod,
-                            Status = paymentResult.IsSuccess ? "Success" : "Failed",
+                            Status = paymentResult.IsSuccess ? "PAID" : "PENDING",
                             TransactionCode = paymentResult.VnpayTransactionId.ToString(),
                             CreatedAt = paymentResult.Timestamp
                         };
