@@ -10,7 +10,7 @@ namespace LibraryManagement.Services
         Task<BorrowedBookDto> AddAsync(BorrowedBook book);
         Task<bool> UpdateAsync(BorrowedBook book);
         Task<bool> DeleteAsync(int id);
-        Task<(bool Success, string Message)> BorrowBookAsync(int userId, int bookId);
+        Task<(bool Success, string Message)> BorrowBookAsync(int userId, List<int> bookIds);
         Task<(bool Success, string Message)> ReturnBookAsync(int userId, int bookId);
     }
 }

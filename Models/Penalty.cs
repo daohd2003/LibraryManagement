@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public int BorrowedBookId { get; set; }
+        public int TransactionId { get; set; }
         public string ViolationType { get; set; } // "Late", "Damaged", "Lost"
         public decimal Amount { get; set; }
         public string Description { get; set; }

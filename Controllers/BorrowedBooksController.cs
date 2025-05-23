@@ -62,10 +62,10 @@ namespace LibraryManagement.Controllers
 
         [HttpPost("borrow")]
         [Authorize(Roles = "Member")]
-        public async Task<ActionResult> BorrowBook(int bookId)
+        public async Task<ActionResult> BorrowBook([FromBody] List<int> bookIds)
         {
             var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value!);
-            var result = await _borrowedBookService.BorrowBookAsync(userId, bookId);
+            var result = await _borrowedBookService.BorrowBookAsync(userId, bookIds);
             if (!result.Success)
                 return BadRequest(result.Message);
 

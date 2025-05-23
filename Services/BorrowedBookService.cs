@@ -3,6 +3,7 @@ using LibraryManagement.DTOs.Response;
 using LibraryManagement.Enums;
 using LibraryManagement.Models;
 using LibraryManagement.Repositories;
+using LibraryManagement.Services.Payments.Transactions;
 
 namespace LibraryManagement.Services
 {
@@ -11,12 +12,14 @@ namespace LibraryManagement.Services
         private readonly IBorrowedBookRepository _borrowedBookRepository;
         private readonly IBookRepository _bookRepository;
         private readonly IMapper _mapper;
+        private readonly ITransactionService _transactionService;
 
-        public BorrowedBookService(IBorrowedBookRepository borrowedBookRepository, IBookRepository bookRepository, IMapper mapper)
+        public BorrowedBookService(IBorrowedBookRepository borrowedBookRepository, IBookRepository bookRepository, IMapper mapper, ITransactionService transactionService)
         {
             _borrowedBookRepository = borrowedBookRepository;
             _bookRepository = bookRepository;
             _mapper = mapper;
+            _transactionService = transactionService;
         }
 
         public async Task<IEnumerable<BorrowedBookDto>> GetAllAsync()
@@ -47,40 +50,55 @@ namespace LibraryManagement.Services
             return await _borrowedBookRepository.DeleteAsync(id);
         }
 
-        public async Task<(bool Success, string Message)> BorrowBookAsync(int userId, int bookId)
+        public async Task<(bool Success, string Message)> BorrowBookAsync(int userId, List<int> bookIds)
         {
-            var book = await _bookRepository.GetByIdAsync(bookId);
-            if (book == null)
-                return (false, "Book not found");
+            if (bookIds == null || bookIds.Count == 0)
+                return (false, "No books specified");
 
-            // Đếm số sách đang được mượn mà chưa trả
-            int currentlyBorrowed = book.BorrowedBooks
-                .Count(bb => bb.Status != BorrowStatus.Returned.ToString());
+            decimal totalAmount = 0;
+            var borrowedBooks = new List<BorrowedBook>();
 
-            if (currentlyBorrowed >= book.Quantity)
-                return (false, "No available copies");
-
-            // Kiểm tra người dùng đã mượn mà chưa trả chưa
-            var alreadyBorrowed = await _borrowedBookRepository.IsAlreadyBorrowedAndNotReturned(userId, bookId);
-            if (alreadyBorrowed)
-                return (false, "You already borrowed this book and have not returned it");
-
-            // Tạo bản ghi mượn sách
-            var borrowed = new BorrowedBook
+            foreach (var bookId in bookIds)
             {
-                BookId = bookId,
-                UserId = userId,
-                BorrowDate = DateTime.Now,
-                DueDate = DateTime.Now.AddDays(14),
-                Status = BorrowStatus.Borrowed.ToString()
-            };
+                var book = await _bookRepository.GetByIdAsync(bookId);
+                if (book == null)
+                    return (false, $"Book with ID {bookId} not found");
 
-            book.Quantity -= 1;
-            await _bookRepository.UpdateAsync(book);
+                int currentlyBorrowed = book.BorrowedBooks.Count(bb => bb.Status != BorrowStatus.Returned.ToString());
+                if (currentlyBorrowed >= book.Quantity)
+                    return (false, $"No available copies for book {book.Title}");
 
-            await _borrowedBookRepository.AddAsync(borrowed);
-            return (true, "Book borrowed successfully");
+                bool alreadyBorrowed = await _borrowedBookRepository.IsAlreadyBorrowedAndNotReturned(userId, bookId);
+                if (alreadyBorrowed)
+                    return (false, $"You already borrowed the book '{book.Title}' and have not returned it");
+
+                var borrowed = new BorrowedBook
+                {
+                    BookId = bookId,
+                    UserId = userId,
+                    BorrowDate = DateTime.UtcNow,
+                    DueDate = DateTime.UtcNow.AddDays(14),
+                    Status = BorrowStatus.Borrowed.ToString()
+                };
+
+                borrowedBooks.Add(borrowed);
+
+                totalAmount += book.Price;
+            }
+
+            // Thêm các bản ghi mượn vào DB
+            foreach (var borrowed in borrowedBooks)
+            {
+                await _borrowedBookRepository.AddAsync(borrowed);
+                // Nếu muốn, giảm số lượng sách (nhưng lưu ý phần quantity như đã nói)
+                var book = await _bookRepository.GetByIdAsync(borrowed.BookId);
+                book.Quantity -= 1;
+                await _bookRepository.UpdateAsync(book);
+            }
+
+            return (true, $"Books borrowed successfully.");
         }
+
 
         public async Task<(bool Success, string Message)> ReturnBookAsync(int userId, int bookId)
         {

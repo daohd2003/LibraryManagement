@@ -86,5 +86,10 @@ namespace LibraryManagement.Services.Payments.Transactions
             var match = System.Text.RegularExpressions.Regex.Match(content, @"TXN\d+");
             return match.Success ? match.Value : string.Empty;
         }
+
+        public async Task<Transaction?> GetTransactionByIdAsync(int transactionId)
+        {
+            return await _dbContext.Transactions.FindAsync(transactionId);
+        }
     }
 }

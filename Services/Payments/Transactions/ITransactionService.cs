@@ -7,6 +7,7 @@ namespace LibraryManagement.Services.Payments.Transactions
     {
         Task<Transaction> SaveTransactionAsync(Transaction transaction);
         Task<IEnumerable<Transaction>> GetUserTransactionsAsync(int userId);
+        Task<Transaction?> GetTransactionByIdAsync(int transactionId);
         Task<bool> ProcessSepayWebhookAsync(SepayWebhookRequest request);
     }
 }
