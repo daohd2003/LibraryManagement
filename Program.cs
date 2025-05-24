@@ -62,6 +62,7 @@ namespace LibraryManagement
             builder.Services.AddScoped<QRCodeService>();
             builder.Services.AddScoped<ITransactionService, TransactionService>();
             builder.Services.AddSingleton<IPenaltyCalculatorFactory, PenaltyCalculatorFactory>();
+            builder.Services.AddScoped<SearchService>();
 
             // Add AutoMapper
             builder.Services.AddAutoMapper(typeof(LibraryProfile));

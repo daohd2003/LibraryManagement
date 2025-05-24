@@ -16,6 +16,7 @@ namespace LibraryManagement.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Penalty> Penalties { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<SearchHistory> SearchHistories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -16,5 +16,6 @@
 
         public ICollection<BorrowedBook> BorrowedBooks { get; set; } = new List<BorrowedBook>();
         public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+        public ICollection<SearchHistory> SearchHistories { get; set; } = new List<SearchHistory>();
     }
 }
