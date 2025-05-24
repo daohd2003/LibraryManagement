@@ -1,12 +1,14 @@
 ﻿
 using CloudinaryDotNet;
 using LibraryManagement.Data;
+using LibraryManagement.DTOs;
 using LibraryManagement.DTOs.Request;
 using LibraryManagement.Hubs;
 using LibraryManagement.Middlewares;
 using LibraryManagement.Profiles;
 using LibraryManagement.Repositories;
 using LibraryManagement.Services;
+using LibraryManagement.Services.AI;
 using LibraryManagement.Services.Authentication;
 using LibraryManagement.Services.CloudServices;
 using LibraryManagement.Services.Documents;
@@ -19,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OpenAI.Chat;
 using System.Security.Claims;
 using System.Text;
 
@@ -40,6 +43,11 @@ namespace LibraryManagement
             // Add DbContext with SQL Server
             builder.Services.AddDbContext<LibraryDbContext>(options =>
                 options.UseSqlServer(builder.Configuration.GetConnectionString("LibraryManagement")));
+
+            // Bind cấu hình từ appsettings.json
+            builder.Services.Configure<OpenAIOptions>(builder.Configuration.GetSection("OpenAI"));
+
+            builder.Services.AddScoped<IAiSearchService, AiSearchService>();
 
             builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             builder.Services.AddScoped<IBookRepository, BookRepository>();
@@ -63,6 +71,8 @@ namespace LibraryManagement
             builder.Services.AddScoped<ITransactionService, TransactionService>();
             builder.Services.AddSingleton<IPenaltyCalculatorFactory, PenaltyCalculatorFactory>();
             builder.Services.AddScoped<SearchService>();
+
+            builder.Services.AddHttpClient();
 
             // Add AutoMapper
             builder.Services.AddAutoMapper(typeof(LibraryProfile));
