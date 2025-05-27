@@ -1,13 +1,13 @@
 ﻿using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using LibraryManagement.Data;
-using LibraryManagement.DTOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
+using LibraryManagement.DTOs;
 
 namespace LibraryManagement.Services.AI
 {
@@ -18,17 +18,17 @@ namespace LibraryManagement.Services.AI
         private readonly ILogger<AiSearchService> _logger;
         private readonly HttpClient _httpClient;
 
-        public AiSearchService(LibraryDbContext context, IOptions<OpenAIOptions> openAIOptions, ILogger<AiSearchService> logger, IHttpClientFactory httpClientFactory)
+        public AiSearchService(
+            LibraryDbContext context,
+            IOptions<OpenAIOptions> openAIOptions,
+            ILogger<AiSearchService> logger,
+            IHttpClientFactory httpClientFactory)
         {
             _context = context;
             _logger = logger;
             _openAIOptions = openAIOptions.Value;
 
             _httpClient = httpClientFactory.CreateClient();
-            _httpClient.BaseAddress = new Uri("https://openrouter.ai");
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _openAIOptions.ApiKey);
-            _httpClient.DefaultRequestHeaders.Add("HTTP-Referer", "https://your-app.com"); // bắt buộc
-            _httpClient.DefaultRequestHeaders.Add("X-Title", "Library Management AI");
         }
 
         public async Task<string> AskAboutLibraryAsync(string question)
@@ -43,38 +43,46 @@ namespace LibraryManagement.Services.AI
                 ? string.Join("\n", books)
                 : "Thư viện không có sách nào.";
 
-            // Tạo payload cho API OpenRouter
+            var apiKey = _openAIOptions.ApiKey;
+            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={apiKey}";
+
             var requestData = new
             {
-                model = "deepseek/deepseek-chat-v3-0324:free",
-                messages = new[]
+                contents = new[]
                 {
-                    new { role = "system", content = "Bạn là trợ lý thư viện, bạn có thể giúp trả lời câu hỏi dựa trên dữ liệu sách." },
-                    new { role = "system", content = $"Danh sách sách hiện có:\n{contextString}" },
-                    new { role = "user", content = question }
+                    new
+                    {
+                        parts = new[]
+                        {
+                            new
+                            {
+                                text = $"Bạn là trợ lý thư viện.\n\nDưới đây là danh sách sách hiện có:\n{contextString}\n\nCâu hỏi của người dùng: {question}"
+                            }
+                        }
+                    }
                 }
             };
 
             var content = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync("/api/v1/chat/completions", content);
+            var response = await _httpClient.PostAsync(url, content);
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogError("AI API lỗi: {StatusCode} - {Reason}", response.StatusCode, response.ReasonPhrase);
+                _logger.LogError("Gemini API lỗi: {StatusCode} - {Reason}", response.StatusCode, response.ReasonPhrase);
                 return "Xin lỗi, trợ lý không thể trả lời câu hỏi vào lúc này.";
             }
 
             var responseJson = await response.Content.ReadAsStringAsync();
 
             using var doc = JsonDocument.Parse(responseJson);
-
             var messageContent = doc.RootElement
-                .GetProperty("choices")[0]
-                .GetProperty("message")
+                .GetProperty("candidates")[0]
                 .GetProperty("content")
+                .GetProperty("parts")[0]
+                .GetProperty("text")
                 .GetString();
 
-            return messageContent;
+            return messageContent ?? "Không có phản hồi.";
         }
     }
 }
