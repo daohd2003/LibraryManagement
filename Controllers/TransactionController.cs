@@ -72,13 +72,19 @@ namespace LibraryManagement.Controllers
 
             string qrUrl = $"https://qr.sepay.vn/img?bank={bankCode}&acc={acc}&template={template}&amount={request.Amount}&des={des}";
 
+            // Tải ảnh về và chuyển sang base64
+            using var httpClient = new HttpClient();
+            var imageBytes = await httpClient.GetByteArrayAsync(qrUrl);
+            var base64Image = Convert.ToBase64String(imageBytes);
+            var base64ImageUrl = $"data:image/png;base64,{base64Image}";
+
             return Ok(new
             {
                 transaction.Id,
                 transaction.TransactionCode,
                 transaction.Status,
                 transaction.Amount,
-                QrImageUrl = qrUrl
+                QrImage = base64ImageUrl
             });
         }
 
